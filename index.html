@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs 性別平權 - 第一關</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 遊戲全螢幕與背景設定 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 防止滾動 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 村莊背景 (使用高畫質風景圖) */
+        #game-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center bottom;
+            z-index: -10;
+        }
+
+        /* 頂部資訊列背景透明漸層 */
+        header {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        /* 氣球容器與動畫 */
+        .balloon-container {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+            animation: float-bob 3s ease-in-out infinite alternate;
+        }
+        .balloon-container:hover {
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+            z-index: 40 !important;
+        }
+
+        /* 讓不同氣球有不同的浮動時間，看起來更自然 */
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.7s; }
+        .delay-3 { animation-delay: 1.2s; }
+
+        @keyframes float-bob {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-15px); }
+        }
+
+        /* 浮動提示文字 */
+        .tooltip {
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 4px 8px;
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .balloon-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ================= CSS 動畫雲朵飄動 ================= */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: -5;
+            box-shadow: inset -2px -3px 0 0 rgba(0,0,0,0.1);
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud::before { width: 50px; height: 50px; top: -20px; left: 15px; }
+        .cloud::after { width: 70px; height: 70px; top: -30px; right: 15px; }
+        
+        .cloud-1 { width: 120px; height: 40px; top: 15%; animation: float-cloud 40s linear infinite; }
+        .cloud-2 { width: 150px; height: 50px; top: 5%; animation: float-cloud 60s linear infinite reverse; transform: scale(0.8); }
+        .cloud-3 { width: 100px; height: 35px; top: 25%; animation: float-cloud 50s linear infinite; transform: scale(1.2); }
+
+        @keyframes float-cloud {
+            0% { left: -20%; }
+            100% { left: 120%; }
+        }
+
+        /* ================= 粒子飄動效果 ================= */
+        .particle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+            animation: float-up linear forwards;
+            box-shadow: 0 0 8px rgba(255,255,255,0.8);
+        }
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* 模態視窗動畫 */
+        .modal-enter { animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景圖層 -->
+    <div id="game-background"></div>
+    
+    <!-- CSS 雲朵 -->
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+
+    <!-- 背景音樂 (自動循環播放) -->
+    <audio id="bgm-audio" loop>
+        <source src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Synth_pop_audio.ogg" type="audio/ogg">
+    </audio>
+
+    <!-- 頂部資訊列 -->
+    <header class="p-4 absolute top-0 w-full z-50 flex justify-between items-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-emerald-900 drop-shadow-md flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm">
+            <span class="text-3xl">🌍</span> SDGs 性別平權
+        </h1>
+        <div class="text-xl md:text-2xl font-bold text-white bg-emerald-600/90 backdrop-blur-sm px-6 py-2 rounded-full shadow-lg border-2 border-white">
+            答對題數: <span id="score-display">0</span> / 10
+        </div>
+    </header>
+
+    <!-- 遊戲主要區域 (熱氣球動態生成) -->
+    <main id="game-area" class="w-full h-full relative pointer-events-none">
+        <!-- JS 會將氣球注入此處 -->
+    </main>
+
+    <!-- ================= 開始遊戲說明視窗 ================= -->
+    <div id="start-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+        <div class="bg-white/95 rounded-3xl shadow-2xl max-w-lg w-full p-8 modal-enter border-4 border-emerald-500">
+            <h2 class="text-3xl font-bold mb-6 text-center text-emerald-800 border-b-2 border-emerald-200 pb-4">
+                🎈 遊戲說明
+            </h2>
+            <ul class="space-y-4 text-lg text-gray-700 font-medium mb-8">
+                <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> 請點選畫面中的熱氣球，每個熱氣球搭配 1 題單選題。</li>
+                <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> 答題後，不論對、錯，答過題的熱氣球都會消失。</li>
+                <li class="flex items-start"><span class="mr-2 text-amber-500">☆</span> 答對的題數如果小於 8 題，就出現重新挑戰的訊息與按鈕，請重新挑戰。</li>
+                <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> <strong>答對 8 題(含)以上</strong>，可以進入下一個關卡。</li>
+                <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> 全部的關卡完成，可以製作個人的過關證書喔！</li>
+            </ul>
+            <div class="flex justify-center">
+                <button onclick="startGame()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all transform hover:scale-105 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] shadow-lg active:scale-95">
+                    開始遊戲
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 選擇題模態視窗 ================= -->
+    <div id="question-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-8 modal-enter">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-2xl font-bold text-gray-800">問題</h3>
+                <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-bold" id="question-number"></span>
+            </div>
+            
+            <p id="question-text" class="text-xl text-gray-800 mb-8 leading-relaxed font-medium"></p>
+            
+            <div id="options-container" class="space-y-4">
+                <!-- 選項按鈕由 JS 生成 -->
+            </div>
+
+            <div id="feedback-message" class="hidden mt-6 text-center text-xl font-bold p-4 rounded-lg">
+                <!-- 答題回饋訊息 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 遊戲結束模態視窗 ================= -->
+    <div id="end-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[300] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center modal-enter">
+            <div id="end-icon" class="text-7xl mb-4"></div>
+            <h2 id="end-title" class="text-3xl font-bold mb-4"></h2>
+            <p id="end-text" class="text-xl text-gray-600 mb-6"></p>
+            <div class="text-2xl font-bold mb-8 bg-gray-100 py-3 rounded-xl">
+                最終成績：<span id="final-score" class="text-emerald-600 text-4xl mx-2"></span> / 10
+            </div>
+            <button id="end-action-btn" class="w-full text-white font-bold py-4 px-6 rounded-2xl text-2xl transition-transform hover:scale-105 shadow-xl"></button>
+        </div>
+    </div>
+
+    <script>
+        // 題庫資料 (10題)
+        const questionsData = [
+            { question: "聯合國永續發展目標 (SDGs) 中，哪一項目標專注於「實現性別平權，並賦予婦女權力」？", options: ["SDG 4 (優質教育)", "SDG 5 (性別平權)", "SDG 10 (減少不平等)", "SDG 16 (和平與正義)"], answer: 1 },
+            { question: "下列哪一項情況屬於「玻璃天花板」(Glass Ceiling) 效應？", options: ["女性更容易找到工作", "女性在職場升遷到高階職位時遇到無形的障礙", "職場建築物多採用玻璃材質", "男性較容易被解雇"], answer: 1 },
+            { question: "關於「同工同酬」，下列敘述何者正確？", options: ["只要做一樣的工作，不分性別都應獲得相同的報酬", "男性因為體力較好，理應獲得較高薪資", "女性因為要照顧家庭，薪資低一點是合理的", "這是只適用於公務員的規定"], answer: 0 },
+            { question: "為了破除性別刻板印象，下列哪一種觀念是正確的？", options: ["男兒有淚不輕彈，男生不能隨便哭", "女生數理能力天生比男生差", "家事應該由全家人共同分擔，不分性別", "護理師和幼教老師一定是女生比較適合"], answer: 2 },
+            { question: "在台灣，依據《性別平等工作法》，女性受僱者因生理日致工作有困難者，每月得請幾日生理假？", options: ["半日", "1日", "2日", "3日"], answer: 1 },
+            { question: "關於「育嬰留職停薪」，下列敘述何者正確？", options: ["只有母親可以申請", "只有父親可以申請", "父母雙方都可以依法申請，共同分擔育兒責任", "申請後一定會被扣除年資且無法復職"], answer: 2 },
+            { question: "被稱為「婦女人權法典」的「消除對婦女一切形式歧視公約」，其英文簡稱是什麼？", options: ["CEDAW", "WHO", "UNICEF", "WTO"], answer: 0 },
+            { question: "當在校園或職場中遇到性騷擾時，最不適當的處理方式是？", options: ["勇敢向性別平等委員會或申訴管道求助", "記錄發生的時間、地點與經過以保全證據", "向信任的老師、主管或親友尋求支持", "忍氣吞聲，責怪自己穿著太暴露惹禍"], answer: 3 },
+            { question: "什麼是「性別盲」(Gender-blind)？", options: ["看不到不同性別的人", "忽視性別差異，認為所有政策或措施對所有性別的影響都一樣", "專指對女性有偏見的人", "一種導致視力受損的眼部疾病"], answer: 1 },
+            { question: "為了促進政治參與的性別平權，許多國家會設立什麼制度來保障女性的參政比例？", options: ["婦女保障名額", "男性專屬投票權", "限制女性候選人的年齡", "提高女性參選的保證金"], answer: 0 }
+        ];
+
+        let currentScore = 0;
+        let answeredQuestions = 0;
+        let wrongAnswers = 0;
+        const gameArea = document.getElementById('game-area');
+        const scoreDisplay = document.getElementById('score-display');
+        const bgm = document.getElementById('bgm-audio');
+
+        // SVG 熱氣球圖示 (透明背景)
+        const balloonSVG = `
+            <svg viewBox="0 0 100 120" class="w-20 h-24 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5 C20 5 10 30 10 50 C10 70 30 85 40 95 L40 105 L60 105 L60 95 C70 85 90 70 90 50 C90 30 80 5 50 5 Z" fill="#EF4444" stroke="#B91C1C" stroke-width="2"/>
+                <path d="M30 5 C30 5 35 95 40 95 M70 5 C70 5 65 95 60 95" stroke="#FCA5A5" stroke-width="2" fill="none"/>
+                <path d="M10 50 C30 60 70 60 90 50" stroke="#FCA5A5" stroke-width="2" fill="none"/>
+                <rect x="42" y="105" width="16" height="12" fill="#D97706" rx="2"/>
+                <path d="M40 95 L42 105 M60 95 L58 105" stroke="#78350F" stroke-width="2"/>
+            </svg>
+        `;
+
+        // 開始遊戲按鈕事件
+        function startGame() {
+            document.getElementById('start-modal').classList.add('hidden');
+            
+            // 播放背景音樂
+            bgm.volume = 0.3;
+            bgm.play().catch(e => console.log("等待互動"));
+            
+            initBalloons();
+            initParticles();
+        }
+
+        // 隨機初始化熱氣球 (畫面上半部)
+        function initBalloons() {
+            const columns = 5;
+            const rows = 2;
+            const gridWidth = 90 / columns; 
+            const gridHeight = 40 / rows;   // 高度限制在上半部
+
+            const shuffledIndices = Array.from({length: 10}, (_, i) => i).sort(() => Math.random() - 0.5);
+
+            shuffledIndices.forEach((questionIndex, i) => {
+                const col = i % columns;
+                const row = Math.floor(i / columns);
+
+                const left = 5 + (col * gridWidth) + (Math.random() * (gridWidth * 0.6));
+                const top = 5 + (row * gridHeight) + (Math.random() * (gridHeight * 0.6));
+                
+                // 隨機放大 1倍、1.2倍 或 1.5倍
+                const scales = [1, 1.2, 1.5];
+                const scale = scales[Math.floor(Math.random() * scales.length)];
+                
+                const delays = ['delay-1', 'delay-2', 'delay-3'];
+                const delayClass = delays[Math.floor(Math.random() * delays.length)];
+
+                createBalloon(questionIndex, left, top, scale, delayClass, i);
+            });
+        }
+
+        function createBalloon(qIndex, left, top, scale, delayClass, displayNum) {
+            const container = document.createElement('div');
+            container.className = `balloon-container pointer-events-auto ${delayClass}`;
+            container.style.left = `${left}%`;
+            container.style.top = `${top}%`;
+            
+            container.innerHTML = `
+                <div style="transform: scale(${scale}); transform-origin: center bottom;">
+                    ${balloonSVG}
+                    <div class="absolute inset-0 flex items-center justify-center -mt-8 font-bold text-white text-xl drop-shadow-md">
+                        ${displayNum + 1}
+                    </div>
+                </div>
+                <span class="tooltip">點擊挑戰</span>
+            `;
+
+            container.addEventListener('click', () => openQuestion(qIndex, container));
+            gameArea.appendChild(container);
+        }
+
+        // 打開問題視窗
+        function openQuestion(index, balloonElement) {
+            const qData = questionsData[index];
+            document.getElementById('question-number').innerText = `問題選項`;
+            document.getElementById('question-text').innerText = qData.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            document.getElementById('feedback-message').classList.add('hidden');
+
+            qData.options.forEach((optionText, optIndex) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-colors text-lg text-gray-700 font-medium';
+                btn.innerText = `${String.fromCharCode(65 + optIndex)}. ${optionText}`;
+                btn.onclick = () => handleAnswer(optIndex, qData.answer, balloonElement, optionsContainer);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('question-modal').classList.remove('hidden');
+        }
+
+        // 處理答題
+        function handleAnswer(selectedIndex, correctIndex, balloonElement, optionsContainer) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const feedbackEl = document.getElementById('feedback-message');
+            feedbackEl.classList.remove('hidden');
+            
+            answeredQuestions++;
+
+            if (selectedIndex === correctIndex) {
+                currentScore++;
+                scoreDisplay.innerText = currentScore;
+                buttons[selectedIndex].classList.replace('border-gray-200', 'border-green-500');
+                buttons[selectedIndex].classList.add('bg-green-100', 'text-green-800');
+                feedbackEl.innerText = "🎉 答對了！非常棒！";
+                feedbackEl.className = "mt-6 text-center text-xl font-bold p-4 rounded-lg bg-green-100 text-green-800";
+            } else {
+                wrongAnswers++;
+                buttons[selectedIndex].classList.replace('border-gray-200', 'border-red-500');
+                buttons[selectedIndex].classList.add('bg-red-100', 'text-red-800');
+                buttons[correctIndex].classList.replace('border-gray-200', 'border-green-500');
+                buttons[correctIndex].classList.add('bg-green-50');
+                feedbackEl.innerText = "❌ 答錯了！請看綠色框的正確答案。";
+                feedbackEl.className = "mt-6 text-center text-xl font-bold p-4 rounded-lg bg-red-100 text-red-800";
+            }
+
+            // 答題後熱氣球隱藏消失
+            balloonElement.style.opacity = '0';
+            setTimeout(() => balloonElement.remove(), 300);
+
+            setTimeout(() => {
+                document.getElementById('question-modal').classList.add('hidden');
+                checkGameStatus();
+            }, 1500);
+        }
+
+        // 檢查過關狀態
+        function checkGameStatus() {
+            // 答對 8 題立刻過關
+            if (currentScore >= 8) {
+                showEndModal(true);
+                return;
+            }
+
+            // 錯超過 2 題或全答完仍未滿 8 題則失敗
+            if (wrongAnswers > 2 || answeredQuestions === 10) {
+                showEndModal(false);
+            }
+        }
+
+        function showEndModal(isWin) {
+            document.getElementById('final-score').innerText = currentScore;
+            
+            const titleEl = document.getElementById('end-title');
+            const textEl = document.getElementById('end-text');
+            const btnEl = document.getElementById('end-action-btn');
+            const iconEl = document.getElementById('end-icon');
+            const endModal = document.getElementById('end-modal');
+
+            endModal.classList.remove('hidden');
+
+            if (isWin) {
+                iconEl.innerText = '🏆';
+                titleEl.innerText = "恭喜通關！";
+                titleEl.className = "text-4xl font-bold mb-4 text-emerald-600";
+                textEl.innerText = "您對性別平權有很深刻的了解，具備前往下一個挑戰的資格！";
+                
+                btnEl.innerText = "前往下一關 ➔";
+                btnEl.className = "w-full font-bold py-4 px-6 rounded-2xl text-2xl transition-transform hover:scale-105 shadow-xl bg-emerald-500 hover:bg-emerald-600 text-white";
+                btnEl.onclick = () => window.location.href = 'level2.html';
+                
+                createFireworkParticles();
+            } else {
+                iconEl.innerText = '💪';
+                titleEl.innerText = "再接再厲！";
+                titleEl.className = "text-4xl font-bold mb-4 text-amber-600";
+                textEl.innerText = "需要答對 8 題以上才能前往下一關喔，請重新挑戰！";
+                
+                btnEl.innerText = "重新挑戰 ↺";
+                btnEl.className = "w-full font-bold py-4 px-6 rounded-2xl text-2xl transition-transform hover:scale-105 shadow-xl bg-amber-500 hover:bg-amber-600 text-white";
+                btnEl.onclick = () => location.reload();
+            }
+        }
+
+        // 動態上升粒子特效
+        function initParticles() {
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(createParticle, Math.random() * 5000);
+            }
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const size = Math.random() * 15 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            
+            const duration = Math.random() * 5 + 5;
+            particle.style.animationDuration = `${duration}s`;
+            
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+                createParticle();
+            }, duration * 1000);
+        }
+
+        function createFireworkParticles() {
+            for(let i=0; i<50; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = '50%';
+                conf.style.top = '50%';
+                conf.style.width = '10px';
+                conf.style.height = '10px';
+                conf.style.backgroundColor = ['#10B981', '#F59E0B', '#EF4444', '#3B82F6'][Math.floor(Math.random()*4)];
+                conf.style.borderRadius = '50%';
+                conf.style.zIndex = '400';
+                conf.style.pointerEvents = 'none';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 100 + Math.random() * 200;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+                
+                conf.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0, .9, .57, 1)',
+                    fill: 'forwards'
+                });
+                
+                document.body.appendChild(conf);
+            }
+        }
+
+    </script>
+</body>
+</html>

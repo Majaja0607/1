@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDGs 性別平權 - 結業證書</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 網頁版背景 */
+        body {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 證書邊框設計 (純 CSS 繪製) */
+        .cert-wrapper {
+            background-color: white;
+            position: relative;
+        }
+        
+        .cert-inner-border {
+            border: 12px double #10B981; /* 祖母綠雙線邊框 */
+            outline: 2px solid #047857;  /* 外層細線 */
+            outline-offset: 8px;
+            position: relative;
+        }
+
+        /* 浮水印文字效果 */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 10rem;
+            font-weight: 900;
+            color: rgba(16, 185, 129, 0.05); /* 極淡的綠色 */
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+        }
+
+        /* 蓋章樣式 */
+        .seal {
+            width: 120px;
+            height: 120px;
+            border: 4px solid #EF4444; /* 紅色 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #EF4444;
+            font-weight: bold;
+            font-size: 1.5rem;
+            line-height: 1.2;
+            text-align: center;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+            box-shadow: inset 0 0 0 2px #EF4444;
+            padding: 4px;
+        }
+        .seal-inner {
+            border: 1px solid #EF4444;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 輸入框樣式 */
+        .name-input {
+            width: 300px;
+            text-align: center;
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700;
+            color: #111827;
+            border: none;
+            border-bottom: 3px solid #6B7280;
+            background: transparent;
+            padding-bottom: 4px;
+            transition: border-color 0.3s;
+            position: relative;
+            z-index: 10;
+        }
+        .name-input:focus {
+            outline: none;
+            border-bottom-color: #10B981;
+        }
+
+        /* ================= 列印專屬設定 (@media print) ================= */
+        @media print {
+            @page {
+                size: landscape; /* 強制橫向列印 */
+                margin: 15mm;    /* 設定列印邊界 */
+            }
+            body {
+                background: white !important;
+            }
+            .no-print {
+                display: none !important; /* 隱藏按鈕等不需列印的元素 */
+            }
+            .cert-wrapper {
+                box-shadow: none !important; /* 移除陰影 */
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .cert-inner-border {
+                border-color: #10B981 !important; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+            .name-input {
+                border-bottom: 2px solid #000 !important; /* 列印時保持姓名底線 */
+                color: #000 !important;
+            }
+            .name-input::placeholder {
+                color: transparent !important; /* 列印時隱藏 placeholder */
+            }
+            .seal, .seal-inner, .watermark {
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen py-8 px-4">
+
+    <!-- 證書本體 -->
+    <div class="cert-wrapper w-full max-w-5xl shadow-2xl p-4 md:p-8">
+        <div class="cert-inner-border p-8 md:p-16 flex flex-col items-center relative overflow-hidden">
+            
+            <!-- 背景浮水印 -->
+            <div class="watermark">SDGs 5</div>
+
+            <!-- 證書內容 -->
+            <div class="relative z-10 w-full text-center">
+                <h1 class="text-4xl md:text-6xl font-black text-emerald-800 tracking-widest mb-6">結 業 證 書</h1>
+                
+                <div class="bg-emerald-50 inline-block px-8 py-3 rounded-full border-2 border-emerald-200 mb-10">
+                    <h2 class="text-2xl md:text-3xl font-bold text-emerald-700">榮譽稱號：<span class="text-amber-500 font-black">SDGs 性別平權小達人</span></h2>
+                </div>
+
+                <p class="text-xl md:text-2xl text-gray-700 mb-6 font-medium">特頒此證，以茲證明</p>
+                
+                <div class="mb-10">
+                    <!-- 使用者輸入姓名的欄位 -->
+                    <input type="text" id="userName" class="name-input" placeholder="請點此輸入姓名" autocomplete="off">
+                </div>
+
+                <p class="text-xl md:text-2xl text-gray-800 leading-loose mb-16 font-medium max-w-3xl mx-auto">
+                    已經成功通過「SDGs 性別平權」所有情境關卡挑戰！<br>
+                    具備優秀的性別平等意識，並期許能在日常生活中<br>
+                    <span class="text-emerald-600 font-bold border-b-2 border-emerald-300">破除刻板印象，實踐平權理念，讓世界更美好。</span>
+                </p>
+
+                <!-- 底部簽名與日期區塊 -->
+                <div class="flex justify-between items-end mt-8 px-4 md:px-12">
+                    <div class="text-left">
+                        <p class="text-xl text-gray-700 font-bold mb-3 border-b border-gray-400 pb-1 inline-block">認證單位：聯合國 SDGs 學習網</p>
+                        <p class="text-xl text-gray-700 font-medium" id="certDate">發證日期：</p>
+                    </div>
+                    
+                    <!-- 純 CSS 繪製的認證印章 -->
+                    <div class="seal">
+                        <div class="seal-inner">
+                            平權<br>認證
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 控制按鈕區 (列印時會自動隱藏) -->
+    <div class="no-print mt-10 flex flex-col sm:flex-row gap-6 w-full max-w-3xl justify-center items-center">
+        
+        <!-- 下載/列印按鈕 -->
+        <button onclick="handlePrint()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-10 rounded-full shadow-lg text-2xl transition-all transform hover:scale-105 flex items-center gap-3 w-full sm:w-auto justify-center border-4 border-emerald-200">
+            <span class="text-3xl">🖨️</span> 下載 / 列印證書
+        </button>
+
+        <!-- 回首頁按鈕 -->
+        <button onclick="window.location.href='index.html'" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-4 px-10 rounded-full shadow-lg text-xl transition-all transform hover:scale-105 flex items-center gap-2 w-full sm:w-auto justify-center">
+            🏠 回首頁挑戰
+        </button>
+    </div>
+
+    <!-- 提示訊息 -->
+    <p class="no-print mt-6 text-gray-500 text-sm font-medium">💡 提示：點擊按鈕後，可選擇印表機列印，或將目的地改為「另存為 PDF」來下載證書。</p>
+
+    <script>
+        // 自動載入今天的日期
+        window.onload = function() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            
+            document.getElementById('certDate').innerText = `發證日期：${year} 年 ${month} 月 ${day} 日`;
+        };
+
+        // 處理列印邏輯
+        function handlePrint() {
+            const nameInput = document.getElementById('userName');
+            
+            // 檢查是否輸入姓名
+            if (nameInput.value.trim() === '') {
+                // 如果沒輸入，可以選擇跳出提示，或是直接將 placeholder 清空讓列印出來是底線
+                const confirmPrint = confirm("您尚未輸入姓名，確定要列印空白證書嗎？\n(按『確定』列印空白證書，按『取消』返回輸入)");
+                if (!confirmPrint) {
+                    nameInput.focus();
+                    return;
+                }
+            }
+            
+            // 呼叫瀏覽器列印功能
+            window.print();
+        }
+    </script>
+</body>
+</html>
