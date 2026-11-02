@@ -164,7 +164,7 @@
                 <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> 全部的關卡完成，可以製作個人的過關證書喔！</li>
             </ul>
             <div class="flex justify-center">
-                <button type="button" onclick="startGame()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all transform hover:scale-105 shadow-lg active:scale-95 cursor-pointer">
+                <button type="button" id="start-game-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all transform hover:scale-105 shadow-lg active:scale-95 cursor-pointer">
                     開始遊戲
                 </button>
             </div>
@@ -226,11 +226,13 @@
             </svg>
         `;
 
+        document.getElementById('start-game-btn').addEventListener('click', startGame);
+
         function startGame() {
             // 1. 強制隱藏 Modal 視窗
             const startModal = document.getElementById('start-modal');
             if (startModal) {
-                startModal.style.display = 'none';
+                startModal.classList.add('hidden');
             }
 
             // 2. 獨立背景音樂播放（失敗也不影響遊戲進行）
@@ -262,7 +264,11 @@
             const gridWidth = 90 / columns; 
             const gridHeight = 40 / rows;
 
-            const shuffledIndices = Array.from({length: 10}, (_, i) => i).sort(() => Math.random() - 0.5);
+            const shuffledIndices = Array.from({length: questionsData.length}, (_, i) => i);
+            for (let i = shuffledIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+            }
 
             shuffledIndices.forEach((questionIndex, i) => {
                 const col = i % columns;
@@ -310,7 +316,7 @@
             optionsContainer.innerHTML = '';
             
             const feedbackEl = document.getElementById('feedback-message');
-            feedbackEl.style.display = 'none';
+            feedbackEl.classList.add('hidden');
 
             qData.options.forEach((optionText, optIndex) => {
                 const btn = document.createElement('button');
@@ -321,7 +327,7 @@
             });
 
             const questionModal = document.getElementById('question-modal');
-            questionModal.style.display = 'flex';
+            questionModal.classList.remove('hidden');
         }
 
         function handleAnswer(selectedIndex, correctIndex, balloonElement, optionsContainer) {
@@ -329,7 +335,7 @@
             buttons.forEach(btn => btn.disabled = true);
 
             const feedbackEl = document.getElementById('feedback-message');
-            feedbackEl.style.display = 'block';
+            feedbackEl.classList.remove('hidden');
             
             answeredQuestions++;
 
@@ -355,7 +361,7 @@
 
             setTimeout(() => {
                 const questionModal = document.getElementById('question-modal');
-                questionModal.style.display = 'none';
+                questionModal.classList.add('hidden');
                 checkGameStatus();
             }, 1500);
         }
@@ -380,7 +386,7 @@
             const iconEl = document.getElementById('end-icon');
             const endModal = document.getElementById('end-modal');
 
-            endModal.style.display = 'flex';
+            endModal.classList.remove('hidden');
 
             if (isWin) {
                 iconEl.innerText = '🏆';
