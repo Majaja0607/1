@@ -6,22 +6,17 @@
     <title>吳育賢SDGs 性別平權 - 第一關</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 強制隱藏防呆設定 (防止 Tailwind CDN 載入失敗時彈窗不消失) */
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
-        /* 遊戲全螢幕與背景設定 */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* 防止滾動 */
+            overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* 村莊背景 (使用高畫質風景圖) */
         #game-background {
             position: absolute;
             top: 0;
@@ -34,12 +29,10 @@
             z-index: -10;
         }
 
-        /* 頂部資訊列背景透明漸層 */
         header {
             background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
         }
 
-        /* 氣球容器與動畫 */
         .balloon-container {
             position: absolute;
             cursor: pointer;
@@ -51,7 +44,6 @@
             z-index: 40 !important;
         }
 
-        /* 讓不同氣球有不同的浮動時間，看起來更自然 */
         .delay-1 { animation-delay: 0.2s; }
         .delay-2 { animation-delay: 0.7s; }
         .delay-3 { animation-delay: 1.2s; }
@@ -61,7 +53,6 @@
             100% { transform: translateY(-15px); }
         }
 
-        /* 浮動提示文字 */
         .tooltip {
             visibility: hidden;
             background-color: rgba(0, 0, 0, 0.7);
@@ -84,7 +75,6 @@
             opacity: 1;
         }
 
-        /* ================= CSS 動畫雲朵飄動 ================= */
         .cloud {
             position: absolute;
             background: white;
@@ -112,7 +102,6 @@
             100% { left: 120%; }
         }
 
-        /* ================= 粒子飄動效果 ================= */
         .particle {
             position: absolute;
             background-color: rgba(255, 255, 255, 0.6);
@@ -129,7 +118,6 @@
             100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
 
-        /* 模態視窗動畫 */
         .modal-enter { animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px) scale(0.95); }
@@ -139,20 +127,18 @@
 </head>
 <body>
 
-    <!-- 背景圖層 -->
     <div id="game-background"></div>
     
-    <!-- CSS 雲朵 -->
     <div class="cloud cloud-1"></div>
     <div class="cloud cloud-2"></div>
     <div class="cloud cloud-3"></div>
 
-    <!-- 背景音樂 -->
-    <audio id="bgm-audio" loop>
-        <source src="https://upload.wikimedia.org/wikipedia/commons/e/e0/Synth_pop_audio.ogg" type="audio/ogg">
+    <!-- 背景音樂：換成通用 MP3 格式 -->
+    <audio id="bgm-audio" loop preload="auto">
+        <source src="https://actions.google.com/sounds/v1/ambiences/outdoor_theme_park.ogg" type="audio/ogg">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=game-music-7408.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 頂部資訊列 -->
     <header class="p-4 absolute top-0 w-full z-50 flex justify-between items-center">
         <h1 class="text-2xl md:text-3xl font-bold text-emerald-900 drop-shadow-md flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm">
             <span class="text-3xl">🌍</span> 吳育賢SDGs 性別平權
@@ -162,12 +148,9 @@
         </div>
     </header>
 
-    <!-- 遊戲主要區域 (熱氣球動態生成) -->
-    <main id="game-area" class="w-full h-full relative pointer-events-none">
-        <!-- JS 會將氣球注入此處 -->
-    </main>
+    <main id="game-area" class="w-full h-full relative pointer-events-none"></main>
 
-    <!-- ================= 開始遊戲說明視窗 ================= -->
+    <!-- 開始遊戲說明視窗 -->
     <div id="start-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
         <div class="bg-white/95 rounded-3xl shadow-2xl max-w-lg w-full p-8 modal-enter border-4 border-emerald-500">
             <h2 class="text-3xl font-bold mb-6 text-center text-emerald-800 border-b-2 border-emerald-200 pb-4">
@@ -181,14 +164,14 @@
                 <li class="flex items-start"><span class="mr-2 text-emerald-500">☆</span> 全部的關卡完成，可以製作個人的過關證書喔！</li>
             </ul>
             <div class="flex justify-center">
-                <button onclick="startGame()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all transform hover:scale-105 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] shadow-lg active:scale-95 cursor-pointer">
+                <button type="button" onclick="startGame()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all transform hover:scale-105 shadow-lg active:scale-95 cursor-pointer">
                     開始遊戲
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ================= 選擇題模態視窗 ================= -->
+    <!-- 選擇題視窗 -->
     <div id="question-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 md:p-8 modal-enter">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -197,18 +180,12 @@
             </div>
             
             <p id="question-text" class="text-xl text-gray-800 mb-8 leading-relaxed font-medium"></p>
-            
-            <div id="options-container" class="space-y-4">
-                <!-- 選項按鈕由 JS 生成 -->
-            </div>
-
-            <div id="feedback-message" class="hidden mt-6 text-center text-xl font-bold p-4 rounded-lg">
-                <!-- 答題回饋訊息 -->
-            </div>
+            <div id="options-container" class="space-y-4"></div>
+            <div id="feedback-message" class="hidden mt-6 text-center text-xl font-bold p-4 rounded-lg"></div>
         </div>
     </div>
 
-    <!-- ================= 遊戲結束模態視窗 ================= -->
+    <!-- 遊戲結束視窗 -->
     <div id="end-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[300] flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center modal-enter">
             <div id="end-icon" class="text-7xl mb-4"></div>
@@ -222,7 +199,6 @@
     </div>
 
     <script>
-        // 題庫資料 (10題)
         const questionsData = [
             { question: "聯合國永續發展目標 (SDGs) 中，哪一項目標專注於「實現性別平權，並賦予婦女權力」？", options: ["SDG 4 (優質教育)", "SDG 5 (性別平權)", "SDG 10 (減少不平等)", "SDG 16 (和平與正義)"], answer: 1 },
             { question: "下列哪一項情況屬於「玻璃天花板」(Glass Ceiling) 效應？", options: ["女性更容易找到工作", "女性在職場升遷到高階職位時遇到無形的障礙", "職場建築物多採用玻璃材質", "男性較容易被解雇"], answer: 1 },
@@ -240,7 +216,6 @@
         let answeredQuestions = 0;
         let wrongAnswers = 0;
 
-        // SVG 熱氣球圖示
         const balloonSVG = `
             <svg viewBox="0 0 100 120" class="w-20 h-24 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg">
                 <path d="M50 5 C20 5 10 30 10 50 C10 70 30 85 40 95 L40 105 L60 105 L60 95 C70 85 90 70 90 50 C90 30 80 5 50 5 Z" fill="#EF4444" stroke="#B91C1C" stroke-width="2"/>
@@ -251,34 +226,36 @@
             </svg>
         `;
 
-        // 開始遊戲按鈕事件 (具備雙重防呆機制)
         function startGame() {
+            // 1. 強制隱藏 Modal 視窗
             const startModal = document.getElementById('start-modal');
             if (startModal) {
-                startModal.classList.add('hidden');
-                startModal.style.display = 'none'; // 強制隱藏，防止 CSS 未載入完畢
+                startModal.style.display = 'none';
             }
-            
-            // 安全播放背景音樂
+
+            // 2. 獨立背景音樂播放（失敗也不影響遊戲進行）
             try {
                 const bgm = document.getElementById('bgm-audio');
                 if (bgm) {
                     bgm.volume = 0.3;
-                    bgm.play().catch(e => console.log("等待使用者互動播放音樂", e));
+                    const playPromise = bgm.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(err => console.log("瀏覽器阻擋自動播放音樂: ", err));
+                    }
                 }
             } catch (e) {
-                console.log("音樂播放未啟動", e);
+                console.log("音訊錯誤已排除: ", e);
             }
-            
+
+            // 3. 建立熱氣球與粒子
             initBalloons();
             initParticles();
         }
 
-        // 隨機初始化熱氣球
         function initBalloons() {
             const gameArea = document.getElementById('game-area');
             if (!gameArea) return;
-            gameArea.innerHTML = ''; // 清空既有內容
+            gameArea.innerHTML = '';
 
             const columns = 5;
             const rows = 2;
@@ -324,7 +301,6 @@
             gameArea.appendChild(container);
         }
 
-        // 打開問題視窗
         function openQuestion(index, balloonElement) {
             const qData = questionsData[index];
             document.getElementById('question-number').innerText = `問題選項`;
@@ -334,7 +310,6 @@
             optionsContainer.innerHTML = '';
             
             const feedbackEl = document.getElementById('feedback-message');
-            feedbackEl.classList.add('hidden');
             feedbackEl.style.display = 'none';
 
             qData.options.forEach((optionText, optIndex) => {
@@ -346,17 +321,14 @@
             });
 
             const questionModal = document.getElementById('question-modal');
-            questionModal.classList.remove('hidden');
             questionModal.style.display = 'flex';
         }
 
-        // 處理答題
         function handleAnswer(selectedIndex, correctIndex, balloonElement, optionsContainer) {
             const buttons = optionsContainer.querySelectorAll('button');
             buttons.forEach(btn => btn.disabled = true);
 
             const feedbackEl = document.getElementById('feedback-message');
-            feedbackEl.classList.remove('hidden');
             feedbackEl.style.display = 'block';
             
             answeredQuestions++;
@@ -378,19 +350,16 @@
                 feedbackEl.className = "mt-6 text-center text-xl font-bold p-4 rounded-lg bg-red-100 text-red-800";
             }
 
-            // 答題後熱氣球隱藏消失
             balloonElement.style.opacity = '0';
             setTimeout(() => balloonElement.remove(), 300);
 
             setTimeout(() => {
                 const questionModal = document.getElementById('question-modal');
-                questionModal.classList.add('hidden');
                 questionModal.style.display = 'none';
                 checkGameStatus();
             }, 1500);
         }
 
-        // 檢查過關狀態
         function checkGameStatus() {
             if (currentScore >= 8) {
                 showEndModal(true);
@@ -411,7 +380,6 @@
             const iconEl = document.getElementById('end-icon');
             const endModal = document.getElementById('end-modal');
 
-            endModal.classList.remove('hidden');
             endModal.style.display = 'flex';
 
             if (isWin) {
@@ -437,7 +405,6 @@
             }
         }
 
-        // 動態上升粒子特效
         function initParticles() {
             const particleCount = 20;
             for (let i = 0; i < particleCount; i++) {
